@@ -1,0 +1,66 @@
+package com.example.Community.domain.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Getter
+@EntityListeners(AuditingEntityListener.class)
+@RequiredArgsConstructor
+public class User {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="user_id")
+    private Long id;
+
+    @Column(name="user_email")
+    private String email;
+
+    @Column(name="user_pwd")
+    private String password;
+
+    @Column(name="user_name")
+    private String name;
+
+    @Column(name="profile_image")
+    private String image;
+
+    @CreatedDate
+    @Column(name = "reg_dat")
+    private LocalDateTime createdDate;  //자동으로 생성일자 입력
+
+    @LastModifiedDate
+    @Column(name = "upd_dat")
+    private LocalDateTime lastModifiedDate;  //자동으로 수정일자 입력
+
+    @OneToMany(mappedBy = "author")
+    List<Post> posts = new ArrayList<>();
+
+    public User(String email, String password, String name, String image){
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.image = image;
+    }
+
+    public void changePassword(String password){
+        this.password = password;
+    }
+
+    public void changeName(String name){
+        this.name = name;
+    }
+
+    public void changeImage(String image){
+        this.image = image;
+    }
+}
+

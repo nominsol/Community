@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: Community
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/community?serverTimezone=UTC&useSSL=false
+    username: root
+    password: 0920
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create   # 개발 중에는 create / create-drop / update 중 선택
+    properties:
+      hibernate:
+        format_sql: true
+
+  profiles:
+    active: development
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+
+jwt:
+  secret: 3W8i2bTUFAf+rQtb6SV01OHnNEpqlntH/wfO770lw/gm3n2onNxHNNtbik6mNux7aNlMD0jsZHzdE2mYZe8vlA==
+  access-token-exp-seconds: 300
+  refresh-token-exp-seconds: 12096000
