@@ -2,8 +2,10 @@ package com.example.Community.controller;
 
 import com.example.Community.dto.PostRequestDto;
 import com.example.Community.dto.PostResponseDto;
+import com.example.Community.response.ApiResponse;
 import com.example.Community.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,46 +22,43 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    @Transactional
-    public ResponseEntity<Map<String, Object>> createPost(
+    public ResponseEntity<ApiResponse<PostResponseDto>> createPost(
             HttpServletRequest httpRequest,
-            @RequestBody PostRequestDto request
+            @Valid @RequestBody PostRequestDto request
     ) {
         Long userId = (Long) httpRequest.getAttribute("userId");
-        PostResponseDto created = postService.createPost(userId, request);
+        PostResponseDto result = postService.createPost(userId, request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(Map.of("data", Map.of("post_id", created.getId())));
+                .body(ApiResponse.of("POST_CREATED", result));
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<Map<String, Object>> getPost(@PathVariable Long postId) {
-        PostResponseDto post = postService.getPost(postId);
-        return ResponseEntity.ok(Map.of("data", post));
+    public ResponseEntity<ApiResponse<PostResponseDto>> getPost(@PathVariable Long postId) {
+        PostResponseDto result = postService.getPost(postId);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.of("POST_CREATED", result));
     }
 
     @PatchMapping("/{postId}")
-    @Transactional
-    public ResponseEntity<Map<String, Object>> updatePost(
+    public ResponseEntity<ApiResponse<PostResponseDto>> updatePost(
             @PathVariable Long postId,
-            HttpServletRequest httpRequest,
-            @RequestBody PostRequestDto request
+            @Valid @RequestBody PostRequestDto request
     ) {
-        Long userId = (Long) httpRequest.getAttribute("userId");
-        PostResponseDto updated = postService.updatePost(postId, userId, request);
-        return ResponseEntity.ok(Map.of("data", Map.of("post_id", updated.getId())));
+        PostResponseDto result = postService.updatePost(postId, request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.of("POST_UPDATED", result));
     }
 
     @DeleteMapping("/{postId}")
-    @Transactional
-    public ResponseEntity<Map<String, Object>> deletePost(
-            @PathVariable Long postId,
-            HttpServletRequest httpRequest
+    public ResponseEntity<ApiResponse<Void>> deletePost(
+            @PathVariable Long postId
     ) {
-        Long userId = (Long) httpRequest.getAttribute("userId");
-        postService.deletePost(postId, userId);
+        postService.deletePost(postId);
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body(Map.of("message", "success", "data", (Object) null));
+                .status(HttpStatus.OK)
+                .body(ApiResponse.of("POST_DELETED", null));
     }
 }

@@ -1,15 +1,15 @@
 package com.example.Community.controller;
 
-import com.example.Community.domain.entity.User;
 import com.example.Community.dto.UserRequestDto;
 import com.example.Community.dto.UserResponseDto;
+import com.example.Community.response.ApiResponse;
 import com.example.Community.service.UserService;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -19,29 +19,39 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    @Transactional
-    public UserResponseDto createUser(@RequestBody UserRequestDto request){
-        return userService.createUser(request);
+    public ResponseEntity<ApiResponse<UserResponseDto>> createUser(@Valid @RequestBody UserRequestDto request){
+        UserResponseDto result = userService.createUser(request);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .header("Location", "/users" + result.getId())
+                .body(ApiResponse.of("USER_CREATED", result));
     }
 
     @GetMapping("/{userId}")
-    public UserResponseDto getUser(@PathVariable Long userId) {
-        return userService.getUser(userId);
+    public ResponseEntity<ApiResponse<UserResponseDto>> getUser(@PathVariable Long userId) {
+        UserResponseDto result = userService.getUser(userId);
+        return ResponseEntity.ok(
+                ApiResponse.of("USER_RETRIEVED", result)
+        );
     }
 
     @PatchMapping("/{userId}")
-    @Transactional
-    public UserResponseDto updateUserInfo(
+    public ResponseEntity<ApiResponse<UserResponseDto>> updateUserInfo(
             @PathVariable Long userId,
-            @RequestBody UserRequestDto request
+            @Valid @RequestBody UserRequestDto request
     ) {
-        return userService.updateUserInfo(userId, request);
+        UserResponseDto result = userService.updateUserInfo(userId, request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.of("USERINFO_UPDATED", result));
     }
 
     @DeleteMapping("/{userId}")
-    @Transactional
-    public void deleteUser(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.of("USER_DELETED", null));
     }
 
 }

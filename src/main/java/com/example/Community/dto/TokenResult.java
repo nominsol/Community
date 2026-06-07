@@ -7,5 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class TokenResult {
     private TokenInfo token;        // 응답 바디 (accessToken, expiresIn)
-    private String newRefreshToken;     // 회전 시에만 사용 (없으면 null)
+    private String newRefreshToken;     // 리프레시 토큰 회전(RTR)이 발생한 경우에만 전달 (없으면 null)
 }

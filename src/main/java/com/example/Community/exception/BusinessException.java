@@ -13,7 +13,6 @@ public class BusinessException extends RuntimeException{
 
     // 에러 코드와 HTTP 상태 코드를 함께 받아 예외를 생성
     public BusinessException(String code, HttpStatus status) {
-        // RuntimeException의 메시지로 에러 코드를 전달
         super(code);
         this.code = code;
         this.status = status;

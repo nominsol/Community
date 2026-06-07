@@ -25,16 +25,22 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProvider jwtProvider;
 
+    //로그인
     @Transactional
     public LoginResult login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new AuthorizedException("non_existent_user"));
+                .orElseThrow(() -> new AuthorizedException("INVALID_CREDENTIALS"));
 
         if (!user.getPassword().equals(request.getPassword())) {
-            throw new AuthorizedException("non_existent_user");
+            throw new AuthorizedException("INVALID_CREDENTIALS");
         }
 
-        String accessToken = jwtProvider.createAccessToken(user.getId(), user.getEmail(), user.getName());
+        String accessToken = jwtProvider.createAccessToken(
+                user.getId(),
+                user.getEmail(),
+                user.getName()
+        );
+
         long expiresIn = jwtProvider.getAccessTokenValidityInMilliseconds();
 
         // 기존 Refresh Token 삭제 후 새로 발급
@@ -43,22 +49,29 @@ public class AuthService {
 
         LocalDateTime expiresAt = LocalDateTime.now()
                 .plusSeconds(jwtProvider.getRefreshTokenExpSeconds());
-        refreshTokenRepository.save(new RefreshToken(refreshToken, user.getId(), expiresAt));
+        refreshTokenRepository.save(
+                new RefreshToken(
+                        refreshToken,
+                        user.getId(),
+                        expiresAt
+                )
+        );
 
         LoginResponse response = LoginResponse.of(user, accessToken, expiresIn);
         return new LoginResult(response, refreshToken);
     }
 
+    //액세스 토큰 재발급
     @Transactional
-    public TokenResult refresh(String rawRefreshToken) {
+    public TokenResult refreshAccessToken(String rawRefreshToken) {
         // DB에서 토큰 조회
         RefreshToken storedToken = refreshTokenRepository.findByToken(rawRefreshToken)
-                .orElseThrow(() -> new AuthorizedException("invalid_refresh_token"));
+                .orElseThrow(() -> new AuthorizedException("UNAUTHORIZED"));
 
         // DB 기준 만료 검사
         if (storedToken.isExpired()) {
             refreshTokenRepository.delete(storedToken);
-            throw new AuthorizedException("expired_refresh_token");
+            throw new AuthorizedException("UNAUTHORIZED");
         }
 
         // JWT 서명/만료 검증
@@ -66,7 +79,7 @@ public class AuthService {
 
         Long userId = storedToken.getUserId();
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AuthorizedException("non_existent_user"));
+                .orElseThrow(() -> new AuthorizedException("UNAUTHORIZED"));
 
         String newAccessToken = jwtProvider.createAccessToken(userId, user.getEmail(), user.getName());
         long expiresIn = jwtProvider.getAccessTokenValidityInMilliseconds();
@@ -77,8 +90,17 @@ public class AuthService {
 
         LocalDateTime expiresAt = LocalDateTime.now()
                 .plusSeconds(jwtProvider.getRefreshTokenExpSeconds());
-        refreshTokenRepository.save(new RefreshToken(newRefreshToken, userId, expiresAt));
+        refreshTokenRepository.save(
+                new RefreshToken(
+                        newRefreshToken,
+                        userId,
+                        expiresAt
+                )
+        );
 
-        return new TokenResult(new TokenInfo(newAccessToken, expiresIn), newRefreshToken);
+        return new TokenResult(
+                new TokenInfo(newAccessToken, expiresIn),
+                newRefreshToken
+        );
     }
 }

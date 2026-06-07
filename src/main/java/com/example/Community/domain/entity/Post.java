@@ -20,27 +20,22 @@ public class Post {
 
     private String title;
     private String content;
-    private String image;
-
-    @Column(name = "view_count")
-    private int viewCount;
 
     @CreatedDate
-    @Column(name = "reg_dat")
+    @Column(name = "reg_date")
     private LocalDateTime createdDate;  //자동으로 생성일자 입력
 
     @LastModifiedDate
-    @Column(name = "upd_dat")
+    @Column(name = "upd_date")
     private LocalDateTime lastModifiedDate;  //자동으로 수정일자 입력
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User author;
 
-    public Post(String title, String content, String image, User author){
+    public Post(String title, String content, User author){
         this.title = title;
         this.content = content;
-        this.image = image;
         this.author = author;
     }
 
@@ -52,7 +47,4 @@ public class Post {
         this.content = content;
     }
 
-    public void changeImage(String image) {
-        this.image = image;
-    }
 }

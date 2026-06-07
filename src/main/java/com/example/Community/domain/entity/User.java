@@ -34,11 +34,11 @@ public class User {
     private String image;
 
     @CreatedDate
-    @Column(name = "reg_dat")
+    @Column(name = "reg_date")
     private LocalDateTime createdDate;  //자동으로 생성일자 입력
 
     @LastModifiedDate
-    @Column(name = "upd_dat")
+    @Column(name = "upd_date")
     private LocalDateTime lastModifiedDate;  //자동으로 수정일자 입력
 
     @OneToMany(mappedBy = "author")

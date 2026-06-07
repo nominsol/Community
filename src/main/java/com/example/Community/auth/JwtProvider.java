@@ -51,7 +51,7 @@ public class JwtProvider {
         return createToken(
                 "access",
                 userId,
-                Map.of("email", email, "nickname", name),
+                Map.of("email", email, "name", name),
                 jwtProperties.getAccessTokenExpSeconds()
         );
     }

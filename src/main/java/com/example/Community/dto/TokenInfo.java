@@ -7,5 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class TokenInfo {
     private String accessToken;
-    private long expiresIn;
+    private long expiresIn;  //액세스 토큰의 남은 유효 시간
 }

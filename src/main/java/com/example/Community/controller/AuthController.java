@@ -1,19 +1,19 @@
 package com.example.Community.controller;
 
-import com.example.Community.dto.LoginRequest;
-import com.example.Community.dto.LoginResult;
-import com.example.Community.dto.TokenResult;
+import com.example.Community.dto.*;
+import com.example.Community.response.ApiResponse;
 import com.example.Community.service.AuthService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,62 +21,74 @@ public class AuthController {
 
     private final AuthService authService;
 
+    // 로그인
     @PostMapping("/auth")
-    public ResponseEntity<Map<String, Object>> login(
-            @RequestBody LoginRequest request,
-            HttpServletResponse response
+    public ResponseEntity<ApiResponse<LoginResponse>> login(
+            @Valid @RequestBody LoginRequest loginRequest,
+            HttpServletResponse httpResponse
     ) {
-        LoginResult result = authService.login(request);
+        // 로그인 처리
+        LoginResult result = authService.login(loginRequest);
 
-        setRefreshTokenCookie(response, result.getRefreshToken());
+        ResponseCookie refreshCookie = ResponseCookie
+                .from("refreshToken", result.getRefreshToken())
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(14 * 24 * 60 * 60)
+                .sameSite("Strict")
+                .build();
 
-        Map<String, Object> body = Map.of(
-                "data", Map.of(
-                        "user_id", result.getResponse().getUser().getId(),
-                        "jwt", result.getResponse().getToken().getAccessToken()
-                )
-        );
-        return ResponseEntity.ok(body);
+        // 쿠키를 응답 헤더에 추가
+        httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.of("LOGIN_SUCCESS", result.getResponse()));
     }
 
-    @PostMapping("/users/token/refresh")
-    public ResponseEntity<Map<String, Object>> refresh(
-            HttpServletRequest request,
-            HttpServletResponse response
+    // 액세스 토큰 재발급
+    @PostMapping("/token/refresh")
+    public ResponseEntity<ApiResponse<TokenInfo>> refreshAccessToken(
+            @CookieValue(name = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse httpResponse
     ) {
-        String refreshToken = extractRefreshTokenFromCookie(request);
-        TokenResult result = authService.refresh(refreshToken);
+        TokenResult result = authService.refreshAccessToken(refreshToken);
 
+        // Refresh Token 회전 시 새 쿠키 세팅
         if (result.getNewRefreshToken() != null) {
-            setRefreshTokenCookie(response, result.getNewRefreshToken());
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", result.getNewRefreshToken())
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(14 * 24 * 60 * 60)
+                    .sameSite("Lax")
+                    .build();
+            httpResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         }
 
-        Map<String, Object> body = Map.of(
-                "data", Map.of(
-                        "access_token", result.getToken().getAccessToken(),
-                        "expires_in", result.getToken().getExpiresIn()
-                )
-        );
-        return ResponseEntity.ok(body);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.of("TOKEN_REFRESH_SUCCESS", result.getToken()));
     }
 
-    private void setRefreshTokenCookie(HttpServletResponse response, String token) {
-        Cookie cookie = new Cookie("refreshToken", token);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(60 * 60 * 24 * 14); // 14일
-        response.addCookie(cookie);
-    }
-
-    private String extractRefreshTokenFromCookie(HttpServletRequest request) {
-        if (request.getCookies() == null) {
-            throw new com.example.Community.exception.AuthorizedException("missing_refresh_token");
-        }
-        for (Cookie cookie : request.getCookies()) {
-            if ("refreshToken".equals(cookie.getName())) {
-                return cookie.getValue();
-            }
-        }
-        throw new com.example.Community.exception.AuthorizedException("missing_refresh_token");
-    }
+//    private void setRefreshTokenCookie(HttpServletResponse response, String token) {
+//        Cookie cookie = new Cookie("refreshToken", token);
+//        cookie.setHttpOnly(true);
+//        cookie.setPath("/");
+//        cookie.setMaxAge(60 * 60 * 24 * 14); // 14일
+//        response.addCookie(cookie);
+//    }
+//
+//    private String extractRefreshTokenFromCookie(HttpServletRequest request) {
+//        if (request.getCookies() == null) {
+//            throw new com.example.Community.exception.AuthorizedException("missing_refresh_token");
+//        }
+//        for (Cookie cookie : request.getCookies()) {
+//            if ("refreshToken".equals(cookie.getName())) {
+//                return cookie.getValue();
+//            }
+//        }
+//        throw new com.example.Community.exception.AuthorizedException("missing_refresh_token");
+//    }
 }

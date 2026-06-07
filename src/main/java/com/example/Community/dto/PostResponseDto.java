@@ -17,7 +17,6 @@ public class PostResponseDto {
         this.id = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
-        this.image = post.getImage();
         this.authorId = post.getAuthor().getId();
     }
 }

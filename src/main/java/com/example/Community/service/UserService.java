@@ -4,11 +4,16 @@ import com.example.Community.domain.entity.User;
 import com.example.Community.domain.repository.UserRepository;
 import com.example.Community.dto.UserRequestDto;
 import com.example.Community.dto.UserResponseDto;
+import com.example.Community.exception.NotFoundException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 @RequiredArgsConstructor
 public class UserService {
 
@@ -29,14 +34,14 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponseDto getUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
         return new UserResponseDto(user);
     }
 
     @Transactional
-    public UserResponseDto updateUserInfo(Long userId, UserRequestDto request) {
+    public UserResponseDto updateUserInfo(@Positive Long userId, @Valid UserRequestDto request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
         user.changeName(request.getName());
         user.changeImage(request.getImage());
         return new UserResponseDto(user);
