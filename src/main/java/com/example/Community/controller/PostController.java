@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,12 +22,12 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping
+
+    @PostMapping()
     public ResponseEntity<ApiResponse<PostResponseDto>> createPost(
-            HttpServletRequest httpRequest,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody PostRequestDto request
     ) {
-        Long userId = (Long) httpRequest.getAttribute("userId");
         PostResponseDto result = postService.createPost(userId, request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)

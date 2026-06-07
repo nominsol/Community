@@ -12,6 +12,7 @@ import com.example.Community.dto.TokenInfo;
 import com.example.Community.dto.TokenResult;
 import com.example.Community.exception.AuthorizedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProvider jwtProvider;
+    private final PasswordEncoder passwordEncoder;
 
     //로그인
     @Transactional
@@ -31,7 +33,10 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AuthorizedException("INVALID_CREDENTIALS"));
 
-        if (!user.getPassword().equals(request.getPassword())) {
+        if (!passwordEncoder.matches(
+                request.getPassword(),
+                user.getPassword()
+        )) {
             throw new AuthorizedException("INVALID_CREDENTIALS");
         }
 

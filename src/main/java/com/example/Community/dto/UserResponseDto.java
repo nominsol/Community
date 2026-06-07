@@ -16,6 +16,5 @@ public class UserResponseDto {
         this.id = user.getId();
         this.email = user.getEmail();
         this.name = user.getName();
-        this.image = user.getImage();
     }
 }

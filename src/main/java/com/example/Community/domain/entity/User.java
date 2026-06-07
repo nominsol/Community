@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "users")
 @Getter
 @EntityListeners(AuditingEntityListener.class)
 @RequiredArgsConstructor
@@ -30,9 +31,6 @@ public class User {
     @Column(name="user_name")
     private String name;
 
-    @Column(name="profile_image")
-    private String image;
-
     @CreatedDate
     @Column(name = "reg_date")
     private LocalDateTime createdDate;  //자동으로 생성일자 입력
@@ -44,11 +42,16 @@ public class User {
     @OneToMany(mappedBy = "author")
     List<Post> posts = new ArrayList<>();
 
-    public User(String email, String password, String name, String image){
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "file_id")
+    private File profileImage;
+
+
+    public User(String email, String password, String name, File profileImage){
         this.email = email;
         this.password = password;
         this.name = name;
-        this.image = image;
+        this.profileImage = profileImage;
     }
 
     public void changePassword(String password){
@@ -59,8 +62,8 @@ public class User {
         this.name = name;
     }
 
-    public void changeImage(String image){
-        this.image = image;
+    public void updateProfileImage(File profileImage) {
+        this.profileImage = profileImage;
     }
 }
 
