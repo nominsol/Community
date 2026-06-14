@@ -10,7 +10,6 @@ public class PostResponseDto {
     private Long id;
     private String title;
     private String content;
-    private String image;
     private Long authorId;
 
     public PostResponseDto(Post post) {

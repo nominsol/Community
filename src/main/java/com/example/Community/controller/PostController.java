@@ -4,6 +4,7 @@ import com.example.Community.dto.PostRequestDto;
 import com.example.Community.dto.PostResponseDto;
 import com.example.Community.response.ApiResponse;
 import com.example.Community.service.PostService;
+import com.example.Community.service.PostStatService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import java.util.Map;
 public class PostController {
 
     private final PostService postService;
-
+    private final PostStatService postStatService;
 
     @PostMapping()
     public ResponseEntity<ApiResponse<PostResponseDto>> createPost(
@@ -37,6 +38,10 @@ public class PostController {
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostResponseDto>> getPost(@PathVariable Long postId) {
         PostResponseDto result = postService.getPost(postId);
+
+        //조회수 통계 추가
+        postStatService.increasePostStatView(postId);
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.of("POST_CREATED", result));

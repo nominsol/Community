@@ -27,3 +27,6 @@ jwt:
   secret: 3W8i2bTUFAf+rQtb6SV01OHnNEpqlntH/wfO770lw/gm3n2onNxHNNtbik6mNux7aNlMD0jsZHzdE2mYZe8vlA==
   access-token-exp-seconds: 300
   refresh-token-exp-seconds: 12096000
+
+server:
+    port: 8081
