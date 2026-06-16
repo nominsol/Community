@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -38,11 +40,11 @@ public class UserController {
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<ApiResponse<Void>> updateName(
+    public ResponseEntity<ApiResponse<Void>> updateNickname(
             @AuthenticationPrincipal Long userId,
             @Valid @RequestBody UpdateUserRequest updateUserRequest
     ) {
-        userService.updateName(userId, updateUserRequest);
+        userService.updateNickname(userId, updateUserRequest);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.of("NICKNAME_UPDATED", null));
@@ -54,6 +56,29 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.of("USER_DELETED", null));
+    }
+
+    @GetMapping("/email/check")
+    public ResponseEntity<ApiResponse<Boolean>> checkEmail(@RequestParam String email) {
+        return ResponseEntity.ok(
+                ApiResponse.of("EMAIL_CHECK_SUCCESS", userService.checkEmail(email)));
+    }
+
+    @GetMapping("/nickname/check")
+    public ResponseEntity<ApiResponse<Boolean>> checkNickname(@RequestParam String nickname) {
+        return ResponseEntity.ok(
+                ApiResponse.of("NICKNAME_CHECK_SUCCESS", userService.checkNickname(nickname)));
+    }
+
+    @PatchMapping("/me/password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody Map<String, String> request
+    ) {
+        userService.changePassword(userId, request.get("password"));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.of("PASSWORD_CHANGED", null));
     }
 
 }

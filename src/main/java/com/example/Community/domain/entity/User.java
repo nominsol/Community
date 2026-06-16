@@ -29,7 +29,7 @@ public class User {
     private String password;
 
     @Column(name="user_name")
-    private String name;
+    private String nickname;
 
     @CreatedDate
     @Column(name = "reg_date")
@@ -47,10 +47,10 @@ public class User {
     private File profileImage;
 
 
-    public User(String email, String password, String name, File profileImage){
+    public User(String email, String password, String nickname, File profileImage){
         this.email = email;
         this.password = password;
-        this.name = name;
+        this.nickname = nickname;
         this.profileImage = profileImage;
     }
 
@@ -58,8 +58,8 @@ public class User {
         this.password = password;
     }
 
-    public void changeName(String name){
-        this.name = name;
+    public void changeNickname(String nickname){
+        this.nickname = nickname;
     }
 
     public void updateProfileImage(File profileImage) {

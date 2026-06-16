@@ -14,17 +14,17 @@ public class UserInfoResponse {
 
     private Long id;
     private String email;
-    private String name;
+    private String nickname;
     private String profileImageUrl;
 
     public static UserInfoResponse of(
             Long userId,
             String email,
-            String name,
+            String nickname,
             String profileImageUrl
     ) {
         return new UserInfoResponse(
-                userId, email, name, profileImageUrl
+                userId, email, nickname, profileImageUrl
         );
     }
 
@@ -37,7 +37,7 @@ public class UserInfoResponse {
         return of(
                 user.getId(),
                 user.getEmail(),
-                user.getName(),
+                user.getNickname(),
                 fullProfileUrl
         );
     }

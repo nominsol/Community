@@ -33,7 +33,7 @@ public class SignupRequest {
             regexp = "^[가-힣a-zA-Z0-9]+$",
             message = "INVALID_FORMAT"
     ) // 한글, 영문, 숫자만 가능 (특수문자, 공백 불가)
-    private String name;
+    private String nickname ;
 
     @Pattern(
             regexp = "^.*\\.(jpg|jpeg|png|gif)$",

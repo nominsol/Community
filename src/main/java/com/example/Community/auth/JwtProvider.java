@@ -47,11 +47,11 @@ public class JwtProvider {
                 .compact();
     }
 
-    public String createAccessToken(Long userId, String email, String name) {
+    public String createAccessToken(Long userId, String email, String nickname) {
         return createToken(
                 "access",
                 userId,
-                Map.of("email", email, "name", name),
+                Map.of("email", email, "nickname", nickname),
                 jwtProperties.getAccessTokenExpSeconds()
         );
     }

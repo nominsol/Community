@@ -14,6 +14,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.annotation.JsonValueInstantiator;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/posts/{post_id}/comments")
 @RequiredArgsConstructor
@@ -47,6 +49,15 @@ public class CommentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.of("COMMENT_UPDATED", result));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<CommentResponseDto>>> getComments(
+            @PathVariable Long postId
+    ) {
+        List<CommentResponseDto> result = commentService.getComments(postId);
+        return ResponseEntity.ok(
+                ApiResponse.of("COMMENTS_RETRIEVED", result));
     }
 
     @DeleteMapping("/{commentId}")

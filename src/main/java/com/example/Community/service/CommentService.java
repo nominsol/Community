@@ -8,12 +8,14 @@ import com.example.Community.domain.repository.PostRepository;
 import com.example.Community.domain.repository.UserRepository;
 import com.example.Community.dto.CommentRequestDto;
 import com.example.Community.dto.CommentResponseDto;
-import com.example.Community.dto.PostResponseDto;
 import com.example.Community.exception.NotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Validated
@@ -50,6 +52,13 @@ public class CommentService {
         comment.changeContent(request.getContent());
 
         return new CommentResponseDto(comment);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentResponseDto> getComments(Long postId) {
+        return commentRepository.findByPostId(postId).stream()
+                .map(CommentResponseDto::new)
+                .collect(Collectors.toList());
     }
 
     @Transactional

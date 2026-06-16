@@ -39,5 +39,9 @@ public class PostLikeService {
     }
 
     @Transactional
-    public void deletePostLike(Long postLikeId) { postLikeRepository.deleteById(postLikeId); }
+    public void deletePostLikeByUserAndPost(Long userId, Long postId) {
+        PostLike postLike = postLikeRepository.findByUserIdAndPostId(userId, postId)
+                .orElseThrow(() -> new NotFoundException("POSTLIKE_NOT_FOUND"));
+        postLikeRepository.delete(postLike);
+    }
 }

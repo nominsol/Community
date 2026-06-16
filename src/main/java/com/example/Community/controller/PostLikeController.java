@@ -33,16 +33,13 @@ public class PostLikeController {
                 .body(ApiResponse.of("POSTLIKE_CREATED", result));
     }
 
-    @DeleteMapping("/{postLikeId}")
+    @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> deletePostLike(
-            @PathVariable Long postLikeId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long postId
     ) {
-        postLikeService.deletePostLike(postLikeId);
-
-        //좋아요수 통계 추가
+        postLikeService.deletePostLikeByUserAndPost(userId, postId);
         postStatService.decreasePostStatLike(postId);
-
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.of("POSTLIKE_DELETED", null));

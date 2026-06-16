@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -66,5 +67,27 @@ public class PostController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.of("POST_DELETED", null));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<PostResponseDto>>> getPosts(
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+        List<PostResponseDto> result = postService.getPosts(offset, limit);
+        return ResponseEntity.ok(
+                ApiResponse.of("POSTS_RETRIEVED", result));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<PostResponseDto>>> searchPosts(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "5") int limit,
+            @RequestParam(defaultValue = "recent") String sort
+    ) {
+        List<PostResponseDto> result = postService.searchPosts(keyword, offset, limit, sort);
+        return ResponseEntity.ok(
+                ApiResponse.of("POSTS_SEARCHED", result));
     }
 }

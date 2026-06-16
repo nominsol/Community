@@ -33,7 +33,9 @@ public class File {
     @Column(name = "reg_date")
     private LocalDateTime createdDate;  //자동으로 생성일자 입력
 
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     // Constructor
     public File(String filePath, FileCategory fileCategory, Long uploaderId) {
@@ -45,5 +47,14 @@ public class File {
     // Factory Methods
     public static File createProfileImage(String filePath, Long uploaderId) {
         return new File(filePath, FileCategory.PROFILE_IMAGE, uploaderId);
+    }
+
+    // 게시글 사진 추가
+    public static File createPostAttachment(String filePath, Long uploaderId) {
+        return new File(filePath, FileCategory.POST_ATTACHMENT, uploaderId);
+    }
+
+    public void associatePost(Post post) {
+        this.post = post;
     }
 }

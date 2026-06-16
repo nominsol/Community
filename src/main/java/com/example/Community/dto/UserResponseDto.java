@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 public class UserResponseDto {
     private Long id;
     private String email;
-    private String name;
+    private String nickname;
     private String image;
 
     public UserResponseDto(User user){
         this.id = user.getId();
         this.email = user.getEmail();
-        this.name = user.getName();
+        this.nickname = user.getNickname();
     }
 }

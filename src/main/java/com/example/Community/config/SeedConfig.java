@@ -3,6 +3,7 @@ package com.example.Community.config;
 import com.example.Community.domain.entity.File;
 import com.example.Community.domain.entity.FileCategory;
 import com.example.Community.domain.entity.User;
+import com.example.Community.domain.repository.FileRepository;
 import com.example.Community.domain.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class SeedConfig {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FileRepository fileRepository;
 
     @Bean
     ApplicationRunner seedRunner() {
@@ -34,8 +36,13 @@ public class SeedConfig {
         // tester1 ~ tester10 계정 더미 데이터
         IntStream.rangeClosed(1, 10).forEach(i -> {
             String rawPassword = "12341234aS!" + i;
+
+            // 3. File을 먼저 생성하고 DB에 저장(save)하여 영속 상태로 만듭니다.
             File file = new File("/public/images/default.jpg", FileCategory.PROFILE_IMAGE, (long)i);
-            User user = new User("tester" + i + "@adapterz.kr", passwordEncoder.encode(rawPassword), "tester" + i, file);
+            File savedFile = fileRepository.save(file);
+
+            // 4. DB에 저장된 savedFile을 User에 넣어줍니다.
+            User user = new User("tester" + i + "@adapterz.kr", passwordEncoder.encode(rawPassword), "tester" + i, savedFile);
             userRepository.save(user);
         });
     }

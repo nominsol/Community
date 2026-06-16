@@ -1,8 +1,12 @@
 package com.example.Community.controller;
 
+import com.example.Community.auth.JwtProvider;
+import com.example.Community.domain.entity.User;
+import com.example.Community.domain.repository.UserRepository;
 import com.example.Community.dto.*;
 import com.example.Community.response.ApiResponse;
 import com.example.Community.service.AuthService;
+import com.example.Community.util.FileUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,16 +14,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
 
     // 로그인
     @PostMapping("/auth")
@@ -72,23 +76,38 @@ public class AuthController {
                 .body(ApiResponse.of("TOKEN_REFRESH_SUCCESS", result.getToken()));
     }
 
-//    private void setRefreshTokenCookie(HttpServletResponse response, String token) {
-//        Cookie cookie = new Cookie("refreshToken", token);
-//        cookie.setHttpOnly(true);
-//        cookie.setPath("/");
-//        cookie.setMaxAge(60 * 60 * 24 * 14); // 14일
-//        response.addCookie(cookie);
-//    }
-//
-//    private String extractRefreshTokenFromCookie(HttpServletRequest request) {
-//        if (request.getCookies() == null) {
-//            throw new com.example.Community.exception.AuthorizedException("missing_refresh_token");
-//        }
-//        for (Cookie cookie : request.getCookies()) {
-//            if ("refreshToken".equals(cookie.getName())) {
-//                return cookie.getValue();
-//            }
-//        }
-//        throw new com.example.Community.exception.AuthorizedException("missing_refresh_token");
-//    }
+    @GetMapping("/auth/check")
+    public ResponseEntity<ApiResponse<AuthStatusResponse>> checkAuth(
+            @AuthenticationPrincipal Long userId,
+            @CookieValue(name = "refreshToken", required = false) String refreshToken
+    ) {
+        Long authenticatedUserId = userId;
+
+        // 헤더 토큰이 없어서 userId가 null인 경우 쿠키로 검증
+        if (authenticatedUserId == null && refreshToken != null && !refreshToken.isBlank()) {
+            authenticatedUserId = jwtProvider.getUserId(refreshToken);
+        }
+
+        if (authenticatedUserId != null) {
+            User user = userRepository.findById(authenticatedUserId).orElse(null);
+
+            if (user != null) {
+                // 프로필 이미지가 있다면 전체 URL로 변환, 없으면 null
+                String profileUrl = user.getProfileImage() != null ?
+                        FileUtil.toFullUrl(user.getProfileImage().getFilePath()) : null;
+
+                AuthStatusResponse authData = AuthStatusResponse.of(
+                        String.valueOf(user.getId()),
+                        user.getEmail(),
+                        user.getNickname(),
+                        profileUrl
+                );
+
+                return ResponseEntity.ok(ApiResponse.of("AUTHENTICATED", authData));
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.of("UNAUTHORIZED", null));
+    }
+
 }

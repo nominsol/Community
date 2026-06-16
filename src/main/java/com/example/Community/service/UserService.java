@@ -39,7 +39,7 @@ public class UserService {
         User user = new User(
                 signupRequest.getEmail(),
                 passwordEncoder.encode(signupRequest.getPassword()),
-                signupRequest.getName(),
+                signupRequest.getNickname(),
                 profileImage
         );
 
@@ -56,17 +56,34 @@ public class UserService {
     }
 
     @Transactional
-    public void updateName(Long userId, UpdateUserRequest updateUserRequest) {
+    public void updateNickname(Long userId, UpdateUserRequest updateUserRequest) {
         User user = userQueryRepository.findByIdWithProfileImage(userId)
                 .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
 
-        user.changeName(updateUserRequest.getName());
+        user.changeNickname(updateUserRequest.getNickname());
         applyProfileImage(user, updateUserRequest.getProfileImageUrl());
     }
 
     @Transactional
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean checkEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean checkNickname(String nickname) {
+        return userRepository.existsByNickname(nickname);
+    }
+
+    @Transactional
+    public void changePassword(Long userId, String password) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND"));
+        user.changePassword(passwordEncoder.encode(password));
     }
 
     // ========== Private Methods ==========

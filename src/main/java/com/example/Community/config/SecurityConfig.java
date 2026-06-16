@@ -33,9 +33,12 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
             "/auth",
+            "/auth/check",
             "/token/refresh",
-            "/users/me/profile-image",
-            "/public/**"
+            "/users/upload/profile-image",
+            "/users/email/check",
+            "/users/nickname/check",
+            "/public/**",
     };
 
     //보안 필터 체인의 최종 구성 정의

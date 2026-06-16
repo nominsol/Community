@@ -43,7 +43,7 @@ public class AuthService {
         String accessToken = jwtProvider.createAccessToken(
                 user.getId(),
                 user.getEmail(),
-                user.getName()
+                user.getNickname()
         );
 
         long expiresIn = jwtProvider.getAccessTokenValidityInMilliseconds();
@@ -86,7 +86,7 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AuthorizedException("UNAUTHORIZED"));
 
-        String newAccessToken = jwtProvider.createAccessToken(userId, user.getEmail(), user.getName());
+        String newAccessToken = jwtProvider.createAccessToken(userId, user.getEmail(), user.getNickname());
         long expiresIn = jwtProvider.getAccessTokenValidityInMilliseconds();
 
         // RTR: Refresh Token도 교체

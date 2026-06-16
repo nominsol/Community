@@ -17,7 +17,7 @@ public class UserRequestDto {
     private String password;
 
     @NotBlank
-    private String name;
+    private String nickname;
 
     private String image;
 }

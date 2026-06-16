@@ -9,19 +9,19 @@ public class AuthStatusResponse {
 
     private String userId;
     private String email;
-    private String name;
+    private String nickname;
     private String profileImageUrl;
 
     public static AuthStatusResponse of(
             String userId,
             String email,
-            String name,
+            String nickname,
             String profileImageUrl
     ) {
         return new AuthStatusResponse(
                 userId,
                 email,
-                name,
+                nickname,
                 profileImageUrl
         );
     }

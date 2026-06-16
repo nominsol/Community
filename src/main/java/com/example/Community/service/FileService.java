@@ -39,6 +39,30 @@ public class FileService {
         return uploadFile(file, userId);
     }
 
+    // FileService 클래스 내부에 추가
+    public File uploadAttachFile(MultipartFile file, Long userId) throws FileUploadException {
+        String extension = extractAndValidateExtension(file);
+        String filename = generateFilename("post", extension);
+
+        // post 디렉토리 생성
+        Path postDirPath = PROJECT_ROOT.resolve("uploads/post");
+        Path savePath = postDirPath.resolve(filename);
+
+        try {
+            if (!Files.exists(postDirPath)) {
+                Files.createDirectories(postDirPath);
+            }
+            file.transferTo(savePath.toFile());
+        } catch (IOException exception) {
+            throw new BusinessException("INTERNAL_SERVER_ERROR", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        String dbFilePath = "/public/post/" + filename;
+        return fileRepository.save(File.createPostAttachment(dbFilePath, userId));
+    }
+
+    // ========== Private Methods ==========
+
     // 실제 업로드를 수행하는 내부 메서드
     private File uploadFile(MultipartFile file, Long userId) throws FileUploadException {
         String extension = extractAndValidateExtension(file); // 확장자 검증 포함
@@ -58,8 +82,6 @@ public class FileService {
 
         return fileRepository.save(createProfileImage(dbFilePath, userId));
     }
-
-    // ========== Private Methods ==========
 
     // 확장자 추출 및 검증
     private String extractAndValidateExtension(MultipartFile file) {
