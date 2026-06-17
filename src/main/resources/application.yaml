@@ -3,7 +3,7 @@ spring:
     name: Community
 
   datasource:
-    url: jdbc:mysql://localhost:3306/community?serverTimezone=UTC&useSSL=false
+    url: jdbc:mysql://localhost:3306/community?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: 0920
     driver-class-name: com.mysql.cj.jdbc.Driver
