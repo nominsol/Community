@@ -108,4 +108,12 @@ public class AuthService {
                 newRefreshToken
         );
     }
+
+    //로그아웃
+    @Transactional
+    public void logout(String refreshToken) {
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            refreshTokenRepository.deleteByToken(refreshToken);
+        }
+    }
 }

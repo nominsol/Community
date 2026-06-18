@@ -110,4 +110,25 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.of("UNAUTHORIZED", null));
     }
 
+    //로그아웃
+    @PostMapping("/auth/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @CookieValue(name = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse response
+    ) {
+        authService.logout(refreshToken);
+
+        ResponseCookie clearCookie = ResponseCookie.from("refreshToken", "")
+                .maxAge(0)
+                .path("/")
+                .sameSite("Lax")
+                .httpOnly(true)
+                .secure(false)  //todo : https 적용 시 true로 변경하기
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, clearCookie.toString());
+
+        return ResponseEntity.ok(ApiResponse.of("LOGOUT_SUCCESS", null));
+    }
+
 }
