@@ -44,8 +44,8 @@ public class PostController {
         postStatService.increasePostStatView(postId);
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.of("POST_CREATED", result));
+                .status(HttpStatus.OK)
+                .body(ApiResponse.of("POST_RETRIEVED", result));
     }
 
     @PatchMapping("/{postId}")
