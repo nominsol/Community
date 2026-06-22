@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import tools.jackson.databind.annotation.JsonValueInstantiator;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class CommentController {
     @PostMapping()
     public ResponseEntity<ApiResponse<CommentResponseDto>> createComment(
             @AuthenticationPrincipal Long userId,
-            @PathVariable Long postId,
+            @PathVariable("post_id") Long postId,
             @Valid @RequestBody CommentRequestDto request
     ) {
         CommentResponseDto result = commentService.createComment(userId, postId, request);
@@ -53,7 +52,7 @@ public class CommentController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<CommentResponseDto>>> getComments(
-            @PathVariable Long postId
+            @PathVariable("post_id") Long postId
     ) {
         List<CommentResponseDto> result = commentService.getComments(postId);
         return ResponseEntity.ok(
@@ -63,7 +62,7 @@ public class CommentController {
     @DeleteMapping("/{commentId}")
     public ResponseEntity<ApiResponse<Void>> deleteComment(
             @PathVariable Long commentId,
-            @PathVariable Long postId
+            @PathVariable("post_id") Long postId
     ) {
         commentService.deleteComment(commentId);
 

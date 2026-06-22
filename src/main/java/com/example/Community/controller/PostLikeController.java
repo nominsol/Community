@@ -21,7 +21,7 @@ public class PostLikeController {
     @PostMapping()
     public ResponseEntity<ApiResponse<PostLikeResponseDto>> createPostLike(
             @AuthenticationPrincipal Long userId,
-            @PathVariable Long postId
+            @PathVariable("post_id") Long postId
     ) {
         PostLikeResponseDto result = postLikeService.createPostLike(userId, postId);
 
@@ -36,7 +36,7 @@ public class PostLikeController {
     @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> deletePostLike(
             @AuthenticationPrincipal Long userId,
-            @PathVariable Long postId
+            @PathVariable("post_id") Long postId
     ) {
         postLikeService.deletePostLikeByUserAndPost(userId, postId);
         postStatService.decreasePostStatLike(postId);

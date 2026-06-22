@@ -24,7 +24,7 @@ public class FileController {
     @PostMapping("/users/upload/profile-image")
     public ResponseEntity<ApiResponse<FileUploadResponse>> uploadProfileImage(
             @AuthenticationPrincipal Long userId,
-            @RequestPart("file") MultipartFile file
+            @RequestPart("profileImage") MultipartFile file
     ) throws FileUploadException {
         File savedFile = fileService.uploadProfileImage(file, userId);
         return ResponseEntity
@@ -36,7 +36,7 @@ public class FileController {
     @PostMapping("/posts/upload/attach-file")
     public ResponseEntity<ApiResponse<FileUploadResponse>> uploadAttachFile(
             @AuthenticationPrincipal Long userId,
-            @RequestPart("file") MultipartFile file
+            @RequestPart("postFile") MultipartFile file
     ) throws FileUploadException {
         File savedFile = fileService.uploadAttachFile(file, userId);
         return ResponseEntity
