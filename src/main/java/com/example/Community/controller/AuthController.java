@@ -78,21 +78,12 @@ public class AuthController {
 
     @GetMapping("/auth/check")
     public ResponseEntity<ApiResponse<AuthStatusResponse>> checkAuth(
-            @AuthenticationPrincipal Long userId,
-            @CookieValue(name = "refreshToken", required = false) String refreshToken
+            @AuthenticationPrincipal Long userId
     ) {
-        Long authenticatedUserId = userId;
-
-        // 헤더 토큰이 없어서 userId가 null인 경우 쿠키로 검증
-        if (authenticatedUserId == null && refreshToken != null && !refreshToken.isBlank()) {
-            authenticatedUserId = jwtProvider.getUserId(refreshToken);
-        }
-
-        if (authenticatedUserId != null) {
-            User user = userRepository.findById(authenticatedUserId).orElse(null);
+        if (userId != null) {
+            User user = userRepository.findById(userId).orElse(null);
 
             if (user != null) {
-                // 프로필 이미지가 있다면 전체 URL로 변환, 없으면 null
                 String profileUrl = user.getProfileImage() != null ?
                         FileUtil.toFullUrl(user.getProfileImage().getFilePath()) : null;
 

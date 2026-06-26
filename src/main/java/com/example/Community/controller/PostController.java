@@ -5,17 +5,14 @@ import com.example.Community.dto.PostResponseDto;
 import com.example.Community.response.ApiResponse;
 import com.example.Community.service.PostService;
 import com.example.Community.service.PostStatService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/posts")
@@ -31,13 +28,17 @@ public class PostController {
             @Valid @RequestBody PostRequestDto request
     ) {
         PostResponseDto result = postService.createPost(userId, request);
+
+        //통계 생성
+        postStatService.createPostStat(result.getId());
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.of("POST_CREATED", result));
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<PostResponseDto>> getPost(@PathVariable Long postId) {
+    public ResponseEntity<ApiResponse<PostResponseDto>> getPost(@PathVariable("postId") Long postId) {
         PostResponseDto result = postService.getPost(postId);
 
         //조회수 통계 추가
@@ -50,7 +51,7 @@ public class PostController {
 
     @PatchMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostResponseDto>> updatePost(
-            @PathVariable Long postId,
+            @PathVariable("postId") Long postId,
             @Valid @RequestBody PostRequestDto request
     ) {
         PostResponseDto result = postService.updatePost(postId, request);
@@ -61,7 +62,7 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> deletePost(
-            @PathVariable Long postId
+            @PathVariable("postId") Long postId
     ) {
         postService.deletePost(postId);
         return ResponseEntity

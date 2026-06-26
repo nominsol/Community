@@ -40,6 +40,7 @@ public class PostLikeController {
     ) {
         postLikeService.deletePostLikeByUserAndPost(userId, postId);
         postStatService.decreasePostStatLike(postId);
+
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.of("POSTLIKE_DELETED", null));

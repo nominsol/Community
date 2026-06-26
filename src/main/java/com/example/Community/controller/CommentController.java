@@ -45,6 +45,7 @@ public class CommentController {
             @Valid @RequestBody CommentRequestDto request
     ) {
         CommentResponseDto result = commentService.updateComment(commentId, request);
+
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.of("COMMENT_UPDATED", result));
@@ -55,6 +56,7 @@ public class CommentController {
             @PathVariable("post_id") Long postId
     ) {
         List<CommentResponseDto> result = commentService.getComments(postId);
+
         return ResponseEntity.ok(
                 ApiResponse.of("COMMENTS_RETRIEVED", result));
     }
