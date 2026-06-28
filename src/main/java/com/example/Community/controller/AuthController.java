@@ -114,7 +114,7 @@ public class AuthController {
                 .path("/")
                 .sameSite("Lax")
                 .httpOnly(true)
-                .secure(false)  //todo : https 적용 시 true로 변경하기
+                .secure(true)
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, clearCookie.toString());
