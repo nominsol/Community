@@ -3,9 +3,9 @@ spring:
     name: Community
 
   datasource:
-    url: jdbc:mysql://localhost:3306/community?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://lulu-db.cfkso8qu2sal.ap-northeast-2.rds.amazonaws.com:3306/community?serverTimezone=UTC&useSSL=false
     username: root
-    password: 0920
+    password: rlaalsthf2
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -32,3 +32,12 @@ server:
     port: 8080
     servlet:
       context-path: /api
+
+cloud:
+  aws:
+    s3:
+      bucket: lulu-community-storage # 실제 생성한 S3 버킷 이름
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
