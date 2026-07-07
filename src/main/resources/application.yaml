@@ -45,3 +45,10 @@ cloud:
       secret-key: ${CLOUD_AWS_CREDENTIALS_SECRET_KEY}
     stack:
       auto: false
+
+management:
+  endpoints:
+    web:
+      base-path: /
+      path-mapping:
+        health: /health-check
