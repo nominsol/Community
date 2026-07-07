@@ -40,6 +40,7 @@ public class SecurityConfig {
             "/users/email/check",
             "/users/nickname/check",
             "/public/**",
+            "/health-check"
     };
 
     //보안 필터 체인의 최종 구성 정의
