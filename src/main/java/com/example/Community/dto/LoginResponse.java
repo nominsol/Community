@@ -7,7 +7,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class LoginResponse {
-    private User user;
+    private Long userId;
+    private String email;
+    private String nickname;
     private TokenInfo token;
 
     public static LoginResponse of(
@@ -16,7 +18,9 @@ public class LoginResponse {
             long expiresIn
     ) {
         return new LoginResponse(
-                user,
+                user.getId(),
+                user.getEmail(),
+                user.getNickname(),
                 new TokenInfo(accessToken, expiresIn)
         );
     }
