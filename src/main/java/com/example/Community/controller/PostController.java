@@ -38,10 +38,12 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<PostResponseDto>> getPost(@PathVariable("postId") Long postId) {
-        PostResponseDto result = postService.getPost(postId);
+    public ResponseEntity<ApiResponse<PostResponseDto>> getPost(
+            @PathVariable("postId") Long postId,
+            @AuthenticationPrincipal Long userId
+    ) {
+        PostResponseDto result = postService.getPost(postId, userId);
 
-        //조회수 통계 추가
         postStatService.increasePostStatView(postId);
 
         return ResponseEntity

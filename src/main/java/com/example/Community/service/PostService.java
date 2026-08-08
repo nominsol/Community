@@ -1,10 +1,9 @@
 package com.example.Community.service;
 
 import com.example.Community.domain.entity.Post;
+import com.example.Community.domain.entity.PostStat;
 import com.example.Community.domain.entity.User;
-import com.example.Community.domain.repository.FileRepository;
-import com.example.Community.domain.repository.PostRepository;
-import com.example.Community.domain.repository.UserRepository;
+import com.example.Community.domain.repository.*;
 import com.example.Community.dto.PostRequestDto;
 import com.example.Community.dto.PostResponseDto;
 import com.example.Community.exception.AuthorizedException;
@@ -31,6 +30,8 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final FileRepository fileRepository;
+    private final PostStatRepository postStatRepository;
+    private final PostLikeRepository postLikeRepository;
 
     @Transactional
     public PostResponseDto createPost(Long userId, PostRequestDto request) {
@@ -62,10 +63,16 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostResponseDto getPost(Long postId) {
+    public PostResponseDto getPost(Long postId, Long currentUserId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("POST_NOT_FOUND"));
-        return new PostResponseDto(post);
+
+        PostStat postStat = postStatRepository.findById(postId).orElse(null);
+
+        boolean isLiked = currentUserId != null &&
+                postLikeRepository.findByUserIdAndPostId(currentUserId, postId).isPresent();
+
+        return new PostResponseDto(post, postStat, isLiked);
     }
 
     @Transactional

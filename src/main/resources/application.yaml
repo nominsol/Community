@@ -16,6 +16,10 @@ spring:
         format_sql: true
         use_sql_comments: true
 
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
 logging:
   level:
     org.hibernate.SQL: debug
