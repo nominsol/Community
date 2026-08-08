@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -105,24 +106,34 @@ public class PostService {
         postRepository.deleteById(postId);
     }
 
-    //게시글 목록 조회
     @Transactional(readOnly = true)
     public List<PostResponseDto> getPosts(int offset, int limit) {
         Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdDate"));
-        return postRepository.findAll(pageable).stream()
-                .map(PostResponseDto::new)
+        List<Post> posts = postRepository.findAll(pageable).getContent();
+
+        List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
+        Map<Long, PostStat> statMap = postStatRepository.findAllById(postIds).stream()
+                .collect(Collectors.toMap(PostStat::getId, stat -> stat));
+
+        return posts.stream()
+                .map(post -> new PostResponseDto(post, statMap.get(post.getId()), false))
                 .collect(Collectors.toList());
     }
 
-    //게시글 검색
     @Transactional(readOnly = true)
     public List<PostResponseDto> searchPosts(String keyword, int offset, int limit, String sort) {
         Sort sortObj = sort.equals("recent")
                 ? Sort.by(Sort.Direction.DESC, "createdDate")
                 : Sort.by(Sort.Direction.DESC, "id");
         Pageable pageable = PageRequest.of(offset / limit, limit, sortObj);
-        return postRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable).stream()
-                .map(PostResponseDto::new)
+        List<Post> posts = postRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable).getContent();
+
+        List<Long> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
+        Map<Long, PostStat> statMap = postStatRepository.findAllById(postIds).stream()
+                .collect(Collectors.toMap(PostStat::getId, stat -> stat));
+
+        return posts.stream()
+                .map(post -> new PostResponseDto(post, statMap.get(post.getId()), false))
                 .collect(Collectors.toList());
     }
 }
