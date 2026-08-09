@@ -33,6 +33,7 @@ public class PostService {
     private final FileRepository fileRepository;
     private final PostStatRepository postStatRepository;
     private final PostLikeRepository postLikeRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public PostResponseDto createPost(Long userId, PostRequestDto request) {
@@ -103,7 +104,16 @@ public class PostService {
 
     @Transactional
     public void deletePost(Long postId) {
-        postRepository.deleteById(postId);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("POST_NOT_FOUND"));
+
+        postStatRepository.deleteById(postId);
+        postLikeRepository.deleteAll(postLikeRepository.findByPostId(postId));
+        commentRepository.deleteAll(commentRepository.findByPostId(postId));
+
+        post.getImages().forEach(file -> file.associatePost(null));
+
+        postRepository.delete(post);
     }
 
     @Transactional(readOnly = true)
