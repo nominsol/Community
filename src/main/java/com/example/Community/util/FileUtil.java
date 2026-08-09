@@ -1,28 +1,25 @@
 package com.example.Community.util;
 
 import com.example.Community.exception.BusinessException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.stereotype.Component;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
+@Component
 public class FileUtil {
 
-    // 인스턴스화 방지
-    private FileUtil() {
-        throw new BusinessException("INTERNAL_SERVER_ERROR", HttpStatus.INTERNAL_SERVER_ERROR);
+    private static String staticBaseUrl;
+
+    @Value("${cloud.aws.s3.public-base-url}")
+    public void setStaticBaseUrl(String value) {
+        FileUtil.staticBaseUrl = value;
     }
 
-    /**
-     * 전체 URL에서 도메인을 제외한 상대 경로(Path) 추출
-     * 예: http://localhost:8080/public/img.jpg -> /public/img.jpg
-     */
     public static String extractPathFromUrl(String url) {
-        if (url == null || url.isBlank()) {
-            return null;
-        }
-
+        if (url == null || url.isBlank()) return null;
         try {
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
                 url = "http://" + url;
@@ -35,27 +32,12 @@ public class FileUtil {
         }
     }
 
-    /**
-     * 상대 경로에 현재 서버 도메인을 붙여 전체 URL 생성
-     * 예: /public/img.jpg -> http://localhost:8080/public/img.jpg
-     */
     public static String toFullUrl(String relativePath) {
-        if (relativePath == null || relativePath.isBlank()) {
-            return null;
-        }
-        // 이미 http로 시작하면 변환 없이 반환
-        if (relativePath.startsWith("http")) {
-            return relativePath;
-        }
-
-        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .build()
-                .toUriString();
-
-        return baseUrl + relativePath;
+        if (relativePath == null || relativePath.isBlank()) return null;
+        if (relativePath.startsWith("http")) return relativePath;
+        return staticBaseUrl + relativePath;
     }
 
-    // 바이트 단위를 읽기 쉬운 단위(KB, MB 등)로 변환
     public static String formatSize(long bytes) {
         if (bytes < 1024) return bytes + " B";
         int z = (63 - Long.numberOfLeadingZeros(bytes)) / 10;

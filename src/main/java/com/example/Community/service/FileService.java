@@ -46,7 +46,7 @@ public class FileService {
         String extension = extractAndValidateExtension(file);
         String filename = generateFilename(folder, extension);
 
-        String s3Key = "upload/" + folder + "/" + filename;
+        String s3Key = "uploads/" + folder + "/" + filename;
 
         try {
             ObjectMetadata metadata = new ObjectMetadata();
