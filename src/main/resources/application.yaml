@@ -34,7 +34,7 @@ server:
 cloud:
   aws:
     s3:
-      bucket: lulu-community-storage
+      bucket: lulu-community-storage-536697237610-ap-northeast-2-an
     region:
       static: ap-northeast-2
     # 아래 설정이 추가되어야 환경변수를 읽어옵니다
